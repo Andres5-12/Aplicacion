@@ -20,9 +20,9 @@ class PerfilViewModel : ViewModel() {
         descripcion = "Estudiante de Ingeniería de Sistemas y computación apasionado por la tecnología, el arte, los videojuegos y la música.",
         programa = "Ingeniería de Sistemas y Computación",
         semestre = 6,
-        hobbies = listOf("Dibujar, Jugar videojuegos, Músico "),
+        hobbies = listOf("Dibujar", "Jugar videojuegos", "Músico"),
         pasatiempos = listOf("Videojuegos", "Escuchar música", "Ver series"),
-        deportes = listOf("Fútbol", "Ciclismo, Gimnasio"),
+        deportes = listOf("Fútbol", "Ciclismo", "Gimnasio"),
         intereses = listOf("Arte","Futbol","Deportes" ,"Inteligencia Artificial", "Cine"),
         imagen = "https://i.pinimg.com/736x/6f/93/b3/6f93b317a0ad5ec8c3d38b5c69e9ae44.jpg"
     )
