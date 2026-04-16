@@ -1,5 +1,14 @@
 package com.example.myapplication3udec.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import com.example.myapplication3udec.model.Perfil
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.draw.border
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,136 +22,181 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.myapplication3udec.viewmodel.PerfilViewModel
+import androidx.compose.foundation.lazy.grid.*
 
 @Composable
 fun PerfilScreen(viewModel: PerfilViewModel) {
 
     val perfil = viewModel.perfil
+    val mostrarInfo = viewModel.mostrarInfo.value
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize()
     ) {
 
-        // 🔹 Header
+        // Header
         item {
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                elevation = CardDefaults.cardElevation(10.dp),
-                modifier = Modifier.fillMaxWidth()
+            HeaderPerfil(perfil)
+        }
+
+        // Descripción
+        item {
+            Text(
+                text = perfil.descripcion,
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+
+        // Botón
+        item {
+            OutlinedButton(
+                onClick = { viewModel.toggleInfo() },
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Text(
+                    if (mostrarInfo)
+                        "Ocultar información"
+                    else
+                        "Ver información personal"
+                )
+            }
+        }
+
+        item { Spacer(modifier = Modifier.height(12.dp)) }
+        // Info personal
+        if (mostrarInfo) {
+            item {
+                Card(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
 
-                    AsyncImage(
-                        model = perfil.imagen,
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier
-                            .size(130.dp)
-                            .clip(CircleShape)
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = perfil.nombre,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-
-                    Text(
-                        text = "${perfil.programa} - Semestre ${perfil.semestre}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = perfil.descripcion,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                        InfoItem(Icons.Default.LocationOn, "Ciudad", perfil.ciudad)
+                        InfoItem(Icons.Default.Email, "Correo", perfil.correo)
+                        InfoItem(Icons.Default.Person, "Edad", "${perfil.edad}")
+                    }
                 }
             }
         }
 
-        item { Spacer(modifier = Modifier.height(16.dp)) }
-
-        // 🔥 Secciones expandibles
+        //  Tabs
         item {
-            ExpandableCard("Información Personal") {
-                Text("Edad: ${perfil.edad}")
-                Text("Ciudad: ${perfil.ciudad}")
-                Text("Correo: ${perfil.correo}")
-            }
+            TabsIntereses(perfil)
         }
+    }
+}
 
-        item {
-            ExpandableCard("Hobbies") {
-                perfil.hobbies.forEach { Text("• $it") }
-            }
+@Composable
+fun HeaderPerfil(perfil: Perfil) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(260.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color(0xFF1E1E2C), Color(0xFF2A2A40))
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            AsyncImage(
+                model = perfil.imagen,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(110.dp)
+                    .clip(CircleShape)
+                    .border(3.dp, Color.White, CircleShape)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(perfil.nombre, color = Color.White)
+
+            Text(perfil.programa, color = Color.LightGray)
+
+            Text("Semestre ${perfil.semestre}", color = Color.White)
         }
+    }
+}
 
-        item {
-            ExpandableCard("Pasatiempos") {
-                perfil.pasatiempos.forEach { Text("• $it") }
-            }
+@Composable
+fun InfoItem(icon: ImageVector, label: String, value: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, contentDescription = null)
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(label)
+            Text(value)
         }
+    }
+}
 
-        item {
-            ExpandableCard("Deportes") {
-                perfil.deportes.forEach { Text("• $it") }
-            }
-        }
 
-        item {
-            ExpandableCard("Intereses") {
-                perfil.intereses.forEach { Text("• $it") }
+@Composable
+fun GridIntereses(lista: List<String>) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+        items(lista.size) { i ->
+            Card(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(
+                    lista[i],
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
     }
 }
 
 @Composable
-fun ExpandableCard(
-    titulo: String,
-    contenido: @Composable ColumnScope.() -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
+fun TabsIntereses(perfil: Perfil) {
 
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-    ) {
+    var selectedTab by remember { mutableStateOf(0) }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(16.dp)
-        ) {
+    val tabs = listOf("Hobbies", "Pasatiempos", "Deportes", "Intereses")
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = titulo,
-                    style = MaterialTheme.typography.titleMedium
+    Column {
+
+        TabRow(selectedTabIndex = selectedTab) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    text = { Text(title) }
                 )
-
-                Text(if (expanded) "▲" else "▼")
             }
+        }
 
-            if (expanded) {
-                Spacer(modifier = Modifier.height(10.dp))
-                contenido()
-            }
+        when (selectedTab) {
+            0 -> GridIntereses(perfil.hobbies)
+            1 -> GridIntereses(perfil.pasatiempos)
+            2 -> GridIntereses(perfil.deportes)
+            3 -> GridIntereses(perfil.intereses)
         }
     }
 }
